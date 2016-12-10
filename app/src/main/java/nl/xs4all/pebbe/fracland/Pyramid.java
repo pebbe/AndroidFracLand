@@ -39,23 +39,23 @@ public class Pyramid {
     static float triCoords[] = {
             // rood : linksvoor
             0, 1, 0,   // A
-            -1, 0, -1, // B
-            0, 0, 1,   // C
+            -1, -.3f, -.5774f, // B
+            0, -.3f, 1.1547f,   // C
 
             // groen : rechtsvoor
             0, 1, 0,   // A
-            0, 0, 1,   // C
-            1, 0, -1,  // D
+            0, -.3f, 1.1547f,   // C
+            1, -.3f, -.5774f,  // D
 
             // geel: achter
             0, 1, 0,   // A
-            1, 0, -1,  // D
-            -1, 0, -1, // B
+            1, -.3f, -.5774f,  // D
+            -1, -.3f, -.5774f, // B
 
             // blau: onder
-            -1, 0, -1, // B
-            1, 0, -1,  // D
-            0, 0, 1,   // C
+            -1, -.3f, -.5774f, // B
+            1, -.3f, -.5774f,  // D
+            0, -.3f, 1.1547f,   // C
     };
     private final int vertexCount = triCoords.length / COORDS_PER_VERTEX;
     private final int vertexStride = COORDS_PER_VERTEX * 4; // 4 bytes per vertex
@@ -82,8 +82,6 @@ public class Pyramid {
     private final int colorStride = COLORS_PER_VERTEX * 4; // 4 bytes per vertex
 
     public Pyramid() {
-        Log.i(TAG, "BEGIN Pyramid");
-
         ByteBuffer bb = ByteBuffer.allocateDirect(triCoords.length * 4);
         bb.order(ByteOrder.nativeOrder());
         vertexBuffer = bb.asFloatBuffer();
@@ -108,14 +106,9 @@ public class Pyramid {
         MyGLRenderer.checkGlError("glAttachShader fragmentShader");
         GLES20.glLinkProgram(mProgram);                  // create OpenGL program executables
         MyGLRenderer.checkGlError("glLinkProgram");
-
-        Log.i(TAG, "END Pyramid");
-
     }
 
     public void draw(float[] mvpMatrix) {
-        Log.i(TAG, "BEGIN draw");
-
         // Add program to OpenGL environment
         GLES20.glUseProgram(mProgram);
         MyGLRenderer.checkGlError("glUseProgram");
@@ -155,7 +148,5 @@ public class Pyramid {
         MyGLRenderer.checkGlError("glDisableVertexAttribArray mColorHandle");
         GLES20.glDisableVertexAttribArray(mPositionHandle);
         MyGLRenderer.checkGlError("glDisableVertexAttribArray mPositionHandle");
-
-        Log.i(TAG, "END draw");
     }
 }

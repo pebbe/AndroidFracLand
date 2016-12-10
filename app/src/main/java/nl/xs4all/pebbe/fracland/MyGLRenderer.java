@@ -8,7 +8,6 @@ import android.util.Log;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import static android.content.ContentValues.TAG;
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
@@ -24,11 +23,21 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     private float mAngleH;
     private float mAngleV;
+    private boolean needReset = true;
+    private boolean needFullReset = true;
 
     public void reset() {
-        mAngleH = -5;
-        mAngleV = 20;
+        if (needFullReset) {
+            mAngleH = -5;
+            mAngleV = 20;
+            needFullReset = false;
+        }
         pyramid = new Pyramid();
+    }
+
+    public void Reset() {
+        needFullReset = true;
+        needReset = true;
     }
 
     @Override
@@ -44,22 +53,30 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         GLES20.glDepthFunc(GLES20.GL_LEQUAL);
 
-        reset();
+        needReset = true;
     }
 
     @Override
     public void onDrawFrame(GL10 unused) {
-        float[] scratch = new float[16];
 
         // Draw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+
+        if (needReset) {
+            reset();
+            needReset = false;
+        }
 
         // Set the camera position (View matrix)
 
         float h = mAngleH / 180 * (float) PI;
         float v = mAngleV / 180 * (float) PI;
 
-        Matrix.setLookAtM(mViewMatrix, 0,   30 * (float)(sin(h)*cos(v)), 30 * (float)sin(v), 30 * (float)(cos(h)*cos(v)),    0f, 0f, 0f,   0f, 1.0f, 0.0f);
+        Matrix.setLookAtM(mViewMatrix, 0,
+                30 * (float)(sin(h)*cos(v)), 30 * (float)sin(v), 30 * (float)(cos(h)*cos(v)),
+                //(float)(sin(h)*cos(v)), (float)sin(v), (float)(cos(h)*cos(v)),
+                0, 0, 0,
+                0, 1, 0);
 
         // Calculate the projection and view transformation
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
@@ -71,11 +88,22 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceChanged(GL10 unused, int width, int height) {
         GLES20.glViewport(0, 0, width, height);
 
-        float ratio = (float) width / height;
+        float ratio = ((float) width) / (float)height;
+
+        float xmul;
+        float ymul;
+        if (ratio > 1.0f) {
+            xmul = 1.15f * ratio;
+            ymul = 1.15f;
+        } else {
+            xmul = 1.15f;
+            ymul = 1.15f / ratio;
+        }
+
 
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
-        Matrix.frustumM(mProjectionMatrix, 0, -ratio, ratio, -1, 1, 28, 32);
+        Matrix.frustumM(mProjectionMatrix, 0, -xmul, xmul, -ymul, ymul, 28, 32);
     }
 
     public static int loadShader(int type, String shaderCode) {

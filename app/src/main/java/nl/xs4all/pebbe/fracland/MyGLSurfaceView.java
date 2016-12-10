@@ -2,6 +2,7 @@ package nl.xs4all.pebbe.fracland;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.util.Log;
 import android.view.MotionEvent;
 
 public class MyGLSurfaceView extends GLSurfaceView /* implements GestureDetector.OnDoubleTapListener */ {
@@ -26,6 +27,7 @@ public class MyGLSurfaceView extends GLSurfaceView /* implements GestureDetector
     private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
     private float mPreviousX;
     private float mPreviousY;
+    private long mPreviousT;
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
@@ -58,9 +60,20 @@ public class MyGLSurfaceView extends GLSurfaceView /* implements GestureDetector
                 }
 
                 requestRender();
+                break;
+
+            case MotionEvent.ACTION_DOWN:
+                // reset na dubbel tap
+                long t = System.currentTimeMillis();
+                if (t - mPreviousT < 200) {
+                    mRenderer.Reset();
+                }
+                mPreviousT = t;
+                break;
         }
         mPreviousX = x;
         mPreviousY = y;
         return true;
     }
+
 }
