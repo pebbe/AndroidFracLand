@@ -6,6 +6,6 @@ public class MyLog {
     private static String TAG = "FRACLAND";
 
     public static void i(String s) {
-        //Log.i(TAG, s);
+        Log.i(TAG, s);
     }
 }

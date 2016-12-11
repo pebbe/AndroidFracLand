@@ -11,7 +11,6 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
     public MyGLSurfaceView(Context context, Bundle savedInstanceState) {
         super(context);
-        MyLog.i("BEGIN MyGLSurfaceView.MyGLSurfaceView");
 
         // Create an OpenGL ES 2.0 context
         setEGLContextClientVersion(2);
@@ -24,13 +23,10 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
         // Render the view only when there is a change in the drawing data
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-        MyLog.i("END MyGLSurfaceView.MyGLSurfaceView");
     }
 
     public void saveInstanceState(Bundle outState) {
-        MyLog.i("BEGIN MyGLSurfaceView.saveInstanceState");
         mRenderer.saveInstanceState(outState);
-        MyLog.i("END MyGLSurfaceView.saveInstanceState");
     }
 
     private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
@@ -40,7 +36,6 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
-        MyLog.i("BEGIN MyGLSurfaceView.onTouchEvent");
         // MotionEvent reports input details from the touch screen
         // and other input controls. In this case, you are only
         // interested in events where the touch position changed.
@@ -61,10 +56,10 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
                 } else {
                     float a = mRenderer.getAngleV() + dy * TOUCH_SCALE_FACTOR;
-                    if (a > 89) {
-                        a = 89;
-                    } else if (a < -89) {
-                        a = -89;
+                    if (a > 89.9f) {
+                        a = 89.9f;
+                    } else if (a < -30) {
+                        a = -30;
                     }
                     mRenderer.setAngleV(a);
                 }
@@ -84,7 +79,6 @@ public class MyGLSurfaceView extends GLSurfaceView {
         }
         mPreviousX = x;
         mPreviousY = y;
-        MyLog.i("END MyGLSurfaceView.onTouchEvent");
         return true;
     }
 
