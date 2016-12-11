@@ -2,26 +2,35 @@ package nl.xs4all.pebbe.fracland;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
-import android.util.Log;
+import android.os.Bundle;
 import android.view.MotionEvent;
 
-public class MyGLSurfaceView extends GLSurfaceView /* implements GestureDetector.OnDoubleTapListener */ {
+public class MyGLSurfaceView extends GLSurfaceView {
 
     private final MyGLRenderer mRenderer;
 
-    public MyGLSurfaceView(Context context) {
+    public MyGLSurfaceView(Context context, Bundle savedInstanceState) {
         super(context);
+        MyLog.i("BEGIN MyGLSurfaceView.MyGLSurfaceView");
 
         // Create an OpenGL ES 2.0 context
         setEGLContextClientVersion(2);
 
         mRenderer = new MyGLRenderer();
+        mRenderer.restoreInstanceState(savedInstanceState);
 
         // Set the Renderer for drawing on the GLSurfaceView
         setRenderer(mRenderer);
 
         // Render the view only when there is a change in the drawing data
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        MyLog.i("END MyGLSurfaceView.MyGLSurfaceView");
+    }
+
+    public void saveInstanceState(Bundle outState) {
+        MyLog.i("BEGIN MyGLSurfaceView.saveInstanceState");
+        mRenderer.saveInstanceState(outState);
+        MyLog.i("END MyGLSurfaceView.saveInstanceState");
     }
 
     private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
@@ -31,6 +40,7 @@ public class MyGLSurfaceView extends GLSurfaceView /* implements GestureDetector
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
+        MyLog.i("BEGIN MyGLSurfaceView.onTouchEvent");
         // MotionEvent reports input details from the touch screen
         // and other input controls. In this case, you are only
         // interested in events where the touch position changed.
@@ -66,13 +76,15 @@ public class MyGLSurfaceView extends GLSurfaceView /* implements GestureDetector
                 // reset na dubbel tap
                 long t = System.currentTimeMillis();
                 if (t - mPreviousT < 200) {
-                    mRenderer.Reset();
+                    mRenderer.reset();
+                    requestRender();
                 }
                 mPreviousT = t;
                 break;
         }
         mPreviousX = x;
         mPreviousY = y;
+        MyLog.i("END MyGLSurfaceView.onTouchEvent");
         return true;
     }
 

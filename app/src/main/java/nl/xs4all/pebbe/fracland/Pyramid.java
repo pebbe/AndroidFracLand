@@ -1,18 +1,18 @@
 package nl.xs4all.pebbe.fracland;
 
 import android.opengl.GLES20;
-import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.Random;
 
 public class Pyramid {
 
     private static final String TAG = "PYRAMID";
 
-    private final FloatBuffer vertexBuffer;
-    private final FloatBuffer colorBuffer;
+    private FloatBuffer vertexBuffer;
+    private FloatBuffer colorBuffer;
     private final int mProgram;
     private int mPositionHandle;
     private int mColorHandle;
@@ -37,22 +37,22 @@ public class Pyramid {
 
     static final int COORDS_PER_VERTEX = 3;
     static float triCoords[] = {
-            // rood : linksvoor
+            // linksvoor
             0, 1, 0,   // A
             -1, -.3f, -.5774f, // B
             0, -.3f, 1.1547f,   // C
 
-            // groen : rechtsvoor
+            // rechtsvoor
             0, 1, 0,   // A
             0, -.3f, 1.1547f,   // C
             1, -.3f, -.5774f,  // D
 
-            // geel: achter
+            // achter
             0, 1, 0,   // A
             1, -.3f, -.5774f,  // D
             -1, -.3f, -.5774f, // B
 
-            // blau: onder
+            // onder
             -1, -.3f, -.5774f, // B
             1, -.3f, -.5774f,  // D
             0, -.3f, 1.1547f,   // C
@@ -61,27 +61,33 @@ public class Pyramid {
     private final int vertexStride = COORDS_PER_VERTEX * 4; // 4 bytes per vertex
 
     static final int COLORS_PER_VERTEX = 3;
-    static float triColors[] = {
-            1, .5f, .5f,
-            .5f, 0, 0,
-            .5f, 0, 0,
-
-            .5f, 1, .5f,
-            0, .5f, 0,
-            0, .5f, 0,
-
-            1, 1, .5f,
-            .5f, .5f, 0,
-            .5f, .5f, 0,
-
-            0, 0, 1,
-            0, 0, 1,
-            0, 0, 1
-    };
-    private final int colorCount = triColors.length / COLORS_PER_VERTEX;
+    static float triColors[] = new float[36];
     private final int colorStride = COLORS_PER_VERTEX * 4; // 4 bytes per vertex
 
-    public Pyramid() {
+    public void init(long seed) {
+        MyLog.i("BEGIN Pyramid.init " + seed);
+        Random rnd = new Random();
+        rnd.setSeed(seed);
+        float p1 = 1;
+        float p2 = .5f;
+        for (int i = 0; i < 4; i++) {
+            if (i == 3) {
+                p1 = .3f;
+                p2 = .3f;
+            }
+            float r = rnd.nextFloat();
+            float g = rnd.nextFloat();
+            float b = rnd.nextFloat();
+            triColors[9 * i + 0] = r * p1;
+            triColors[9 * i + 3] = r * p2;
+            triColors[9 * i + 6] = r * p2;
+            triColors[9 * i + 1] = g * p1;
+            triColors[9 * i + 4] = g * p2;
+            triColors[9 * i + 7] = g * p2;
+            triColors[9 * i + 2] = b * p1;
+            triColors[9 * i + 5] = b * p2;
+            triColors[9 * i + 8] = b * p2;
+        }
         ByteBuffer bb = ByteBuffer.allocateDirect(triCoords.length * 4);
         bb.order(ByteOrder.nativeOrder());
         vertexBuffer = bb.asFloatBuffer();
@@ -93,7 +99,11 @@ public class Pyramid {
         colorBuffer = cb.asFloatBuffer();
         colorBuffer.put(triColors);
         colorBuffer.position(0);
+        MyLog.i("END Pyramid.init");
+    }
 
+    public Pyramid() {
+        MyLog.i("BEGIN Pyramid.Pyramid");
         int vertexShader = MyGLRenderer.loadShader(
                 GLES20.GL_VERTEX_SHADER, vertexShaderCode);
         int fragmentShader = MyGLRenderer.loadShader(
@@ -106,9 +116,11 @@ public class Pyramid {
         MyGLRenderer.checkGlError("glAttachShader fragmentShader");
         GLES20.glLinkProgram(mProgram);                  // create OpenGL program executables
         MyGLRenderer.checkGlError("glLinkProgram");
+        MyLog.i("END Pyramid.Pyramid");
     }
 
     public void draw(float[] mvpMatrix) {
+        MyLog.i("BEGIN Pyramid.draw");
         // Add program to OpenGL environment
         GLES20.glUseProgram(mProgram);
         MyGLRenderer.checkGlError("glUseProgram");
@@ -148,5 +160,6 @@ public class Pyramid {
         MyGLRenderer.checkGlError("glDisableVertexAttribArray mColorHandle");
         GLES20.glDisableVertexAttribArray(mPositionHandle);
         MyGLRenderer.checkGlError("glDisableVertexAttribArray mPositionHandle");
+        MyLog.i("END Pyramid.draw");
     }
 }
