@@ -1,7 +1,6 @@
 package nl.xs4all.pebbe.fracland;
 
 import android.app.Activity;
-import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 
 public class MainActivity extends Activity {

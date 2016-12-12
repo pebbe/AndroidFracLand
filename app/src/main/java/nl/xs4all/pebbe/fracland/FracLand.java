@@ -10,11 +10,12 @@ import java.util.Random;
 public class FracLand {
 
     private static final int LVL = 64; // gehele macht van 2
+    private static final int ARRAY_SIZE = 9 * (LVL * LVL + 6 * LVL + 2);
 
     // lichtbron:
-    private static final float X = 2;
-    private static final float Y = -4;
-    private static final float Z = 10;
+    private static final float X = -4;
+    private static final float Y = 10;
+    private static final float Z = 2;
     private static float lenXYZ = 10.954451f; // sqrt(X^2 + Y^2 + Z^2)
     private static float SUB = -.2f;
     private static float DOWN = .5f;
@@ -46,61 +47,61 @@ public class FracLand {
             "}";
 
     static final int COORDS_PER_VERTEX = 3;
-    static float coords[] = new float[9 * (LVL * LVL + 6 * LVL + 2)];
+    static float coords[] = new float[ARRAY_SIZE];
     private final int vertexStride = COORDS_PER_VERTEX * 4; // 4 bytes per vertex
 
     static final int COLORS_PER_VERTEX = 3;
-    static float colors[] = new float[9 * (LVL * LVL + 6 * LVL + 2)];
+    static float colors[] = new float[ARRAY_SIZE];
     private final int colorStride = COLORS_PER_VERTEX * 4; // 4 bytes per vertex
 
     private int vertexCount;
 
-    private float z[][] = new float[LVL + 1][LVL + 1];
+    private float y[][] = new float[LVL + 1][LVL + 1];
 
-    private float toX(int x, int y) {
-        return 2 * (((float) x) / ((float) LVL) + .5f * ((float) y) / (float) LVL) - 1;
+    private float toX(int x, int z) {
+        return 2 * (((float) x) / ((float) LVL) + .5f * ((float) z) / (float) LVL) - 1;
     }
 
-    private float toY(int x, int y) {
-        return 2 * (.8660254f * ((float) y) / (float) LVL) - .57735f;
+    private float toZ(int z) {
+        return 2 * (.8660254f * ((float) z) / (float) LVL) - .57735f;
     }
 
-    void driehoek(int x1, int y1, float z1, int x2, int y2, float z2, int x3, int y3, float z3, float r, float g, float b) {
-        coords[3 * vertexCount] = toX(x1, y1);
-        coords[3 * vertexCount + 1] = z1 - DOWN;
-        coords[3 * vertexCount + 2] = toY(x1, y1);
+    void driehoek(int x1, float y1, int z1, int x2, float y2, int z2, int x3, float y3, int z3, float r, float g, float b) {
+        coords[3 * vertexCount] = toX(x1, z1);
+        coords[3 * vertexCount + 1] = y1 - DOWN;
+        coords[3 * vertexCount + 2] = toZ(z1);
         colors[3 * vertexCount] = r;
         colors[3 * vertexCount + 1] = g;
         colors[3 * vertexCount + 2] = b;
         vertexCount++;
 
-        coords[3 * vertexCount] = toX(x2, y2);
-        coords[3 * vertexCount + 1] = z2 - DOWN;
-        coords[3 * vertexCount + 2] = toY(x2, y2);
+        coords[3 * vertexCount] = toX(x2, z2);
+        coords[3 * vertexCount + 1] = y2 - DOWN;
+        coords[3 * vertexCount + 2] = toZ(z2);
         colors[3 * vertexCount] = r;
         colors[3 * vertexCount + 1] = g;
         colors[3 * vertexCount + 2] = b;
         vertexCount++;
 
-        coords[3 * vertexCount] = toX(x3, y3);
-        coords[3 * vertexCount + 1] = z3 - DOWN;
-        coords[3 * vertexCount + 2] = toY(x3, y3);
+        coords[3 * vertexCount] = toX(x3, z3);
+        coords[3 * vertexCount + 1] = y3 - DOWN;
+        coords[3 * vertexCount + 2] = toZ(z3);
         colors[3 * vertexCount] = r;
         colors[3 * vertexCount + 1] = g;
         colors[3 * vertexCount + 2] = b;
         vertexCount++;
     }
 
-    private float cos1(int xi, int yi) {
+    private float cos1(int xi, int zi) {
         float xn, yn, zn, ax, ay, az, bx, by, bz;
 
-        ax = hSqrt3;
-        ay = .5f;
-        az = LVL*(z[xi + 1][yi] - z[xi][yi]);
+        ax = .5f;
+        ay = LVL*(y[xi][zi +1] - y[xi][zi]);
+        az = hSqrt3;
 
-        bx = 0;
-        by = 1;
-        bz = LVL*(z[xi][yi + 1] - z[xi][yi]);
+        bx = 1;
+        by = LVL*(y[xi + 1][zi] - y[xi][zi]);
+        bz = 0;
 
         // normaalvector:
         xn = ay * bz - az * by;
@@ -110,16 +111,16 @@ public class FracLand {
         return (xn * X + yn * Y + zn * Z) / (float)Math.sqrt(xn * xn + yn * yn + zn * zn) / lenXYZ;
     }
 
-    private float cos2(int xi, int yi) {
+    private float cos2(int xi, int zi) {
         float xn, yn, zn, ax, ay, az, bx, by, bz;
 
-        ax = hSqrt3;
-        ay = -.5f;
-        az = LVL*(z[xi+1][yi] - z[xi][yi+1]);
+        ax = -.5f;
+        ay = LVL*(y[xi][zi+1] - y[xi+1][zi]);
+        az = hSqrt3;
 
-        bx = hSqrt3;
-        by = .5f;
-        bz = LVL*(z[xi+1][yi+1] - z[xi][yi+1]);
+        bx = .5f;
+        by = LVL*(y[xi+1][zi+1] - y[xi+1][zi]);
+        bz = hSqrt3;
 
         // normaalvector:
         xn = ay*bz - az*by;
@@ -145,89 +146,89 @@ public class FracLand {
 
         driehoek(
                 0, 0, 0,
-                0, LVL, 0,
+                0, 0, LVL,
                 LVL, 0, 0,
                 0, .3f, .7f);
 
         driehoek(
-                0, 0, SUB,
-                LVL, 0, SUB,
-                0, LVL, SUB,
+                0, SUB, 0,
+                LVL, SUB, 0,
+                0, SUB, LVL,
                 .2f, .2f, .2f);
 
-        z[0][0] = rnd.nextFloat() * 2 - 1;
-        z[LVL][0] = rnd.nextFloat() * 2 - 1;
-        z[0][LVL] = rnd.nextFloat() * 2 - 1;
+        y[0][0] = rnd.nextFloat() * 2 - 1;
+        y[LVL][0] = rnd.nextFloat() * 2 - 1;
+        y[0][LVL] = rnd.nextFloat() * 2 - 1;
 
         for (int step = LVL; step > 1; step /= 2) {
             float mul = ((float) step) / (float) LVL;
             for (int x = 0; x < LVL; x += step) {
-                for (int y = 0; x + y < LVL; y += step) {
-                    z[x + step / 2][y] = (z[x][y] + z[x + step][y]) / 2 + (rnd.nextFloat() * 2 - 1) * mul;
-                    z[x][y + step / 2] = (z[x][y] + z[x][y + step]) / 2 + (rnd.nextFloat() * 2 - 1) * mul;
-                    z[x + step / 2][y + step / 2] = (z[x][y + step] + z[x + step][y]) / 2 + (rnd.nextFloat() * 2 - 1) * mul;
+                for (int z = 0; x + z < LVL; z += step) {
+                    y[x + step / 2][z] = (y[x][z] + y[x + step][z]) / 2 + (rnd.nextFloat() * 2 - 1) * mul;
+                    y[x][z + step / 2] = (y[x][z] + y[x][z + step]) / 2 + (rnd.nextFloat() * 2 - 1) * mul;
+                    y[x + step / 2][z + step / 2] = (y[x][z + step] + y[x + step][z]) / 2 + (rnd.nextFloat() * 2 - 1) * mul;
                 }
             }
         }
 
         for (int x = 0; x < LVL; x++) {
-            for (int y = 0; x + y < LVL; y++) {
-                if (z[x][y] > 0 || z[x][y + 1] > 0 || z[x + 1][y] > 0) {
-                    float c = cos1(x, y);
+            for (int z = 0; x + z < LVL; z++) {
+                if (y[x][z] > 0 || y[x][z + 1] > 0 || y[x + 1][z] > 0) {
+                    float c = cos1(x, z);
                     driehoek(
-                            x, y, z[x][y],
-                            x, y + 1, z[x][y + 1],
-                            x + 1, y, z[x + 1][y],
+                            x, y[x][z], z,
+                            x, y[x][z + 1], z + 1,
+                            x + 1, y[x + 1][z], z,
                             0, .5f * c + .5f, 0);
                 }
-                if (x + y < LVL - 1 && (z[x][y + 1] > 0 || z[x + 1][y] > 0 || z[x + 1][y + 1] > 0)) {
-                    float c = cos2(x, y);
+                if (x + z < LVL - 1 && (y[x][z + 1] > 0 || y[x + 1][z] > 0 || y[x + 1][z + 1] > 0)) {
+                    float c = cos2(x, z);
                     driehoek(
-                            x, y + 1, z[x][y + 1],
-                            x + 1, y + 1, z[x + 1][y + 1],
-                            x + 1, y, z[x + 1][y],
+                            x, y[x][z + 1], z + 1,
+                            x + 1, y[x + 1][z + 1], z + 1,
+                            x + 1, y[x + 1][z], z,
                             0, .5f * c + .5f, 0);
                 }
             }
             driehoek(
-                    0, x, min0(z[0][x]),
-                    0, x, SUB,
-                    0, x + 1, min0(z[0][x + 1]),
+                    0, min0(y[0][x]), x,
+                    0, SUB, x,
+                    0, min0(y[0][x + 1]), x + 1,
                     .5f, .5f, .5f);
             driehoek(
-                    0, x, SUB,
-                    0, x + 1, SUB,
-                    0, x + 1, min0(z[0][x + 1]),
+                    0, SUB, x,
+                    0, SUB, x + 1,
+                    0, min0(y[0][x + 1]), x + 1,
                     .5f, .5f, .5f);
             driehoek(
-                    x, 0, SUB,
-                    x, 0, min0(z[x][0]),
-                    x + 1, 0, min0(z[x + 1][0]),
-                    .3f, .3f, .3f);
-            driehoek(
-                    x + 1, 0, SUB,
-                    x, 0, SUB,
-                    x + 1, 0, min0(z[x + 1][0]),
-                    .3f, .3f, .3f);
-            driehoek(
-                    x, LVL - x, min0(z[x][LVL - x]),
-                    x, LVL - x, SUB,
-                    x + 1, LVL - x - 1, min0(z[x + 1][LVL - x - 1]),
+                    x, SUB, 0,
+                    x, min0(y[x][0]), 0,
+                    x + 1, min0(y[x + 1][0]), 0,
                     .4f, .4f, .4f);
             driehoek(
-                    x, LVL - x, SUB,
-                    x + 1, LVL - x - 1, SUB,
-                    x + 1, LVL - x - 1, min0(z[x + 1][LVL - x - 1]),
+                    x + 1, SUB, 0,
+                    x, SUB, 0,
+                    x + 1, min0(y[x + 1][0]), 0,
                     .4f, .4f, .4f);
+            driehoek(
+                    x, min0(y[x][LVL - x]), LVL - x,
+                    x, SUB, LVL - x,
+                    x + 1, min0(y[x + 1][LVL - x - 1]), LVL - x - 1,
+                    .3f, .3f, .3f);
+            driehoek(
+                    x, SUB, LVL - x,
+                    x + 1, SUB, LVL - x - 1,
+                    x + 1, min0(y[x + 1][LVL - x - 1]), LVL - x - 1,
+                    .3f, .3f, .3f);
         }
 
-        ByteBuffer bb = ByteBuffer.allocateDirect(9 * (LVL * LVL + 6 * LVL + 2) * 4);
+        ByteBuffer bb = ByteBuffer.allocateDirect(4 * ARRAY_SIZE);
         bb.order(ByteOrder.nativeOrder());
         vertexBuffer = bb.asFloatBuffer();
         vertexBuffer.put(coords);
         vertexBuffer.position(0);
 
-        ByteBuffer cb = ByteBuffer.allocateDirect(9 * (LVL * LVL + 6 * LVL + 2) * 4);
+        ByteBuffer cb = ByteBuffer.allocateDirect(4 * ARRAY_SIZE);
         cb.order(ByteOrder.nativeOrder());
         colorBuffer = cb.asFloatBuffer();
         colorBuffer.put(colors);
