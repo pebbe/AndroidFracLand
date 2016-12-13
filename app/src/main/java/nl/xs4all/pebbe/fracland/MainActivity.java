@@ -10,7 +10,6 @@ import android.widget.RelativeLayout;
 public class MainActivity extends AppCompatActivity {
 
     private MyGLSurfaceView mGLView;
-    private RelativeLayout mLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
         // Create a GLSurfaceView instance and set it
         // as the ContentView for this Activity.
         mGLView = new MyGLSurfaceView(this, savedInstanceState);
-        mLayout = (RelativeLayout) findViewById(R.id.content_main);
+        RelativeLayout mLayout = (RelativeLayout) findViewById(R.id.content_main);
         mLayout.addView(mGLView);
     }
 
