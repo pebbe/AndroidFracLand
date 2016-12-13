@@ -1,53 +1,77 @@
 package nl.xs4all.pebbe.fracland;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.RelativeLayout;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
     private MyGLSurfaceView mGLView;
+    private RelativeLayout mLayout;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        MyLog.i("BEGIN MainActivity.onCreate");
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         // Create a GLSurfaceView instance and set it
         // as the ContentView for this Activity.
         mGLView = new MyGLSurfaceView(this, savedInstanceState);
-        setContentView(mGLView);
-        MyLog.i("END MainActivity.onCreate");
+        mLayout = (RelativeLayout) findViewById(R.id.content_main);
+        mLayout.addView(mGLView);
     }
 
     @Override
     protected void onPause() {
-        MyLog.i("BEGIN MainActivity.onPause");
         super.onPause();
         // The following call pauses the rendering thread.
         // If your OpenGL application is memory intensive,
         // you should consider de-allocating objects that
         // consume significant memory here.
         mGLView.onPause();
-        MyLog.i("END MainActivity.onPause");
     }
 
     @Override
     protected void onResume() {
-        MyLog.i("BEGIN MainActivity.onResume");
         super.onResume();
         // The following call resumes a paused rendering thread.
         // If you de-allocated graphic objects for onPause()
         // this is a good place to re-allocate them.
         mGLView.onResume();
-        MyLog.i("END MainActivity.onResume");
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        MyLog.i("BEGIN MainActivity.onSaveInstanceState");
         super.onSaveInstanceState(outState);
         mGLView.saveInstanceState(outState);
-        MyLog.i("END MainActivity.onSaveInstanceState");
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_help) {
+            HelpDialogFragment dialog = new HelpDialogFragment();
+            dialog.show(getSupportFragmentManager(), "HelpDiaFrag");
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 }

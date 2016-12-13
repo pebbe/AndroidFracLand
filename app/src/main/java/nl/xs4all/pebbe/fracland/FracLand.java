@@ -16,9 +16,15 @@ public class FracLand {
     private static final float X = -4;
     private static final float Y = 10;
     private static final float Z = 2;
-    private static float lenXYZ = 10.954451f; // sqrt(X^2 + Y^2 + Z^2)
-    private static float SUB = -.2f;
-    private static float DOWN = .5f;
+    private static final float lenXYZ = 10.954451f; // sqrt(X^2 + Y^2 + Z^2)
+
+    private static final float SUB = -.2f;
+    private static final float DOWN = .4f;
+
+    private static final float GreyR = .37647f;
+    private static final float GreyG = .490196f;
+    private static final float GreyB = .545098f;
+
 
     private FloatBuffer vertexBuffer;
     private FloatBuffer colorBuffer;
@@ -154,7 +160,7 @@ public class FracLand {
                 0, SUB, 0,
                 LVL, SUB, 0,
                 0, SUB, LVL,
-                .2f, .2f, .2f);
+                GreyR / 5 * 2, GreyG / 5 * 2, GreyB / 5 * 2);
 
         y[0][0] = rnd.nextFloat() * 2 - 1;
         y[LVL][0] = rnd.nextFloat() * 2 - 1;
@@ -194,32 +200,32 @@ public class FracLand {
                     0, min0(y[0][x]), x,
                     0, SUB, x,
                     0, min0(y[0][x + 1]), x + 1,
-                    .5f, .5f, .5f);
+                    GreyR, GreyG, GreyB);
             driehoek(
                     0, SUB, x,
                     0, SUB, x + 1,
                     0, min0(y[0][x + 1]), x + 1,
-                    .5f, .5f, .5f);
+                    GreyR, GreyG, GreyB);
             driehoek(
                     x, SUB, 0,
                     x, min0(y[x][0]), 0,
                     x + 1, min0(y[x + 1][0]), 0,
-                    .4f, .4f, .4f);
+                    GreyR / 5 * 4, GreyG / 5 * 4, GreyB / 5 * 4);
             driehoek(
                     x + 1, SUB, 0,
                     x, SUB, 0,
                     x + 1, min0(y[x + 1][0]), 0,
-                    .4f, .4f, .4f);
+                    GreyR / 5 * 4, GreyG / 5 * 4, GreyB / 5 * 4);
             driehoek(
                     x, min0(y[x][LVL - x]), LVL - x,
                     x, SUB, LVL - x,
                     x + 1, min0(y[x + 1][LVL - x - 1]), LVL - x - 1,
-                    .3f, .3f, .3f);
+                    GreyR / 5 * 3, GreyG / 5 * 3, GreyB / 5 * 3);
             driehoek(
                     x, SUB, LVL - x,
                     x + 1, SUB, LVL - x - 1,
                     x + 1, min0(y[x + 1][LVL - x - 1]), LVL - x - 1,
-                    .3f, .3f, .3f);
+                    GreyR / 5 * 3, GreyG / 5 * 3, GreyB / 5 * 3);
         }
 
         ByteBuffer bb = ByteBuffer.allocateDirect(4 * ARRAY_SIZE);
