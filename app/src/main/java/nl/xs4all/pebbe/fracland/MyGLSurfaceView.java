@@ -1,5 +1,9 @@
 package nl.xs4all.pebbe.fracland;
 
+// TODO: pinch -> scale
+// TODO: double move -> translate
+// zie boek blz 215 en verder
+
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
