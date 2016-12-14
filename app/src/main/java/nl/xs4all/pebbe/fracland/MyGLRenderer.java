@@ -18,6 +18,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private final static String angelHState = "nl.xs4all.pebbe.fracland.ANGLEH";
     private final static String angelVState = "nl.xs4all.pebbe.fracland.ANGLEV";
     private final static String seedState = "nl.xs4all.pebbe.fracland.SEED";
+    private final static String scaleState = "nl.xs4all.pebbe.fracland.SCALE";
+    private final static String xcState = "nl.xs4all.pebbe.fracland.XC";
+    private final static String ycState = "nl.xs4all.pebbe.fracland.YC";
 
     private FracLand fracland;
 
@@ -29,10 +32,21 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private float mAngleH;
     private float mAngleV;
     private long mSeed;
+    private float mScale;
+    private float mXc;
+    private float mYc;
+
+    private float xmul;
+    private float ymul;
+    private float mWidth;
+    private float mHeight;
 
     private void init() {
         mAngleH = -5;
         mAngleV = 20;
+        mScale = 1;
+        mXc = 0;
+        mYc = 0;
         mSeed = System.currentTimeMillis();
     }
 
@@ -41,12 +55,25 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         fracland.init(mSeed);
     }
 
+    public void scale(float f) {
+        mScale *= f;
+        mScale = Math.max(1, Math.min(mScale, 5));
+    }
+
+    public void move(float x, float y) {
+        mXc += (x / mWidth * 2 - 1) * xmul / mScale;
+        mYc -= (y / mHeight * 2 - 1) * ymul / mScale;
+     }
+
     public void restoreInstanceState(Bundle savedInstanceState) {
         init();
         if (savedInstanceState != null) {
             mAngleH = savedInstanceState.getFloat(angelHState, mAngleH);
             mAngleV = savedInstanceState.getFloat(angelVState, mAngleV);
             mSeed = savedInstanceState.getLong(seedState, mSeed);
+            mScale = savedInstanceState.getFloat(scaleState, mScale);
+            mXc = savedInstanceState.getFloat(xcState, mXc);
+            mYc = savedInstanceState.getFloat(ycState, mYc);
         }
     }
 
@@ -54,7 +81,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         outState.putFloat(angelHState, mAngleH);
         outState.putFloat(angelVState, mAngleV);
         outState.putLong(seedState, mSeed);
-    }
+        outState.putFloat(scaleState, mScale);
+        outState.putFloat(xcState, mXc);
+        outState.putFloat(ycState, mYc);
+   }
 
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig eglConfig) {
@@ -90,6 +120,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 0, 0, 0,
                 0, 1, 0);
 
+                // this projection matrix is applied to object coordinates
+        // in the onDrawFrame() method
+        Matrix.frustumM(mProjectionMatrix, 0, mXc - xmul / mScale, mXc + xmul / mScale, mYc - ymul / mScale, mYc + ymul / mScale, 28, 32);
+
         // Calculate the projection and view transformation
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
 
@@ -102,8 +136,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
         float ratio = ((float) width) / (float) height;
 
-        float xmul;
-        float ymul;
         if (ratio > 1.0f) {
             xmul = 1.15f * ratio;
             ymul = 1.15f;
@@ -111,11 +143,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             xmul = 1.15f;
             ymul = 1.15f / ratio;
         }
+        mWidth = width;
+        mHeight = height;
 
 
-        // this projection matrix is applied to object coordinates
-        // in the onDrawFrame() method
-        Matrix.frustumM(mProjectionMatrix, 0, -xmul, xmul, -ymul, ymul, 28, 32);
     }
 
     public static int loadShader(int type, String shaderCode) {

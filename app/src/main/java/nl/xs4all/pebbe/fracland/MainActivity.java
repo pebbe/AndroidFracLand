@@ -1,15 +1,28 @@
 package nl.xs4all.pebbe.fracland;
 
+// TODO: double drag voor move, zie: https://developer.android.com/training/gestures/scale.html#scale -> More complex scaling example ???
+
 import android.os.Bundle;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.widget.RelativeLayout;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements
+        GestureDetector.OnGestureListener,
+        GestureDetector.OnDoubleTapListener {
 
     private MyGLSurfaceView mGLView;
+    private GestureDetectorCompat mDetector;
+    private ScaleGestureDetector mScaleDetector;
+
+    private float mPreviousX;
+    private float mPreviousY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +36,11 @@ public class MainActivity extends AppCompatActivity {
         mGLView = new MyGLSurfaceView(this, savedInstanceState);
         RelativeLayout mLayout = (RelativeLayout) findViewById(R.id.content_main);
         mLayout.addView(mGLView);
+
+        mDetector = new GestureDetectorCompat(this, this);
+        mDetector.setOnDoubleTapListener(this);
+
+        mScaleDetector = new ScaleGestureDetector(this, new ScaleListener());
     }
 
     @Override
@@ -72,5 +90,71 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        boolean res = mScaleDetector.onTouchEvent(event);
+        if (!mScaleDetector.isInProgress()) {
+            res = mDetector.onTouchEvent(event);
+        }
+        mPreviousX = event.getX();
+        mPreviousY = event.getY();
+        return res;
+    }
+
+    @Override
+    public boolean onDown(MotionEvent motionEvent) {
+        return true; // geen false!!!
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        mGLView.scroll(e2.getX() - mPreviousX, e2.getY() - mPreviousY);
+        return true;
+    }
+
+    @Override
+    public boolean onDoubleTap(MotionEvent motionEvent) {
+        mGLView.reset();
+        return true;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent motionEvent) {
+    }
+
+    @Override
+    public boolean onSingleTapConfirmed(MotionEvent motionEvent) {
+        return false;
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent motionEvent) {
+        return false;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent motionEvent) {
+        mGLView.move(motionEvent.getX(), motionEvent.getY());
+    }
+
+    @Override
+    public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
+        return false;
+    }
+
+    @Override
+    public boolean onDoubleTapEvent(MotionEvent motionEvent) {
+        return false;
+    }
+
+    private class ScaleListener
+            extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            mGLView.scale(detector.getScaleFactor());
+            return true;
+        }
     }
 }

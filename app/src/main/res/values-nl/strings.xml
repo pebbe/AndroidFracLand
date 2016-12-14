@@ -2,6 +2,8 @@
     <string name="app_name">FracLand</string>
     <string name="action_help">Help</string>
     <string name="help">Veeg heen en weer om te draaien[BR][BR]Veeg
-    op en neer om te kantelen[BR][BR]Dubbeltik voor een nieuw landschap</string>
+        op en neer om te kantelen[BR][BR]Spreid en sluit twee vingers om te
+        zoomen[BR][BR]Lang vasthouden om punt naar het midden te verplaatsen[BR][BR]Dubbeltik
+        voor een nieuw landschap</string>
     <string name="OK">OK</string>
 </resources>

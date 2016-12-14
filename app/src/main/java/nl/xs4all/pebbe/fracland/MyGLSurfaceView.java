@@ -3,7 +3,6 @@ package nl.xs4all.pebbe.fracland;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.view.MotionEvent;
 
 public class MyGLSurfaceView extends GLSurfaceView {
 
@@ -30,56 +29,38 @@ public class MyGLSurfaceView extends GLSurfaceView {
     }
 
     private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
-    private float mPreviousX;
-    private float mPreviousY;
-    private long mPreviousT;
 
-    @Override
-    public boolean onTouchEvent(MotionEvent e) {
-        // MotionEvent reports input details from the touch screen
-        // and other input controls. In this case, you are only
-        // interested in events where the touch position changed.
-
-        float x = e.getX();
-        float y = e.getY();
-
-        switch (e.getAction()) {
-            case MotionEvent.ACTION_MOVE:
-
-                float dx = x - mPreviousX;
-                float dy = y - mPreviousY;
-
-                if (Math.abs(dx) > Math.abs(dy)) {
-                    mRenderer.setAngleH(
-                            mRenderer.getAngleH() -
-                                    dx * TOUCH_SCALE_FACTOR);  // = 180.0f / 320
-
-                } else {
-                    float a = mRenderer.getAngleV() + dy * TOUCH_SCALE_FACTOR;
-                    if (a > 89.9f) {
-                        a = 89.9f;
-                    } else if (a < -30) {
-                        a = -30;
-                    }
-                    mRenderer.setAngleV(a);
-                }
-
-                requestRender();
-                break;
-
-            case MotionEvent.ACTION_DOWN:
-                // reset na dubbel tap
-                long t = System.currentTimeMillis();
-                if (t - mPreviousT < 200) {
-                    mRenderer.reset();
-                    requestRender();
-                }
-                mPreviousT = t;
-                break;
+    public void scroll(float dx, float dy) {
+        if (Math.abs(dx) > Math.abs(dy)) {
+            mRenderer.setAngleH(
+                    mRenderer.getAngleH() -
+                            dx * TOUCH_SCALE_FACTOR);  // = 180.0f / 320
+        } else {
+            float a = mRenderer.getAngleV() + dy * TOUCH_SCALE_FACTOR;
+            if (a > 89.9f) {
+                a = 89.9f;
+            } else if (a < -30) {
+                a = -30;
+            }
+            mRenderer.setAngleV(a);
         }
-        mPreviousX = x;
-        mPreviousY = y;
-        return true;
+        requestRender();
     }
 
+    public void reset() {
+        mRenderer.reset();
+        requestRender();
+    }
+
+    public void scale(float f) {
+        mRenderer.scale(f);
+        requestRender();
+    }
+
+    public void move(float x, float y) {
+        int pos[] = new int[2];
+        getLocationOnScreen(pos);
+        mRenderer.move(x - pos[0], y - pos[1]);
+        requestRender();
+    }
 }
