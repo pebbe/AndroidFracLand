@@ -81,8 +81,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
         // Set the camera position (View matrix)
 
-        float h = mAngleH / 180 * (float) PI;
-        float v = mAngleV / 180 * (float) PI;
+        float h = mAngleH / 180.0f * (float) PI;
+        float v = mAngleV / 180.0f * (float) PI;
 
         Matrix.setLookAtM(mViewMatrix, 0,
                 30 * (float) (sin(h) * cos(v)), 30 * (float) sin(v), 30 * (float) (cos(h) * cos(v)),
