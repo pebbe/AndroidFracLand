@@ -1,7 +1,3 @@
 Fractal Landscape for Android
 
-Slide left/right to rotate
-
-Slide up/down to tilt
-
-Double tap to change scene
+https://play.google.com/store/apps/details?id=nl.xs4all.pebbe.fracland
