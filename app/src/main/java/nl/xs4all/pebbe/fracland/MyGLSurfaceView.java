@@ -12,9 +12,12 @@ import android.view.MotionEvent;
 public class MyGLSurfaceView extends GLSurfaceView {
 
     private final MyGLRenderer mRenderer;
+    private final float mDensity;
 
-    public MyGLSurfaceView(Context context, Bundle savedInstanceState) {
+    public MyGLSurfaceView(Context context, Bundle savedInstanceState, float density) {
         super(context);
+
+        mDensity = density;
 
         // Create an OpenGL ES 2.0 context
         setEGLContextClientVersion(2);
@@ -36,30 +39,43 @@ public class MyGLSurfaceView extends GLSurfaceView {
     private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
     private float mPreviousX;
     private float mPreviousY;
+    private float mPreviousD;
     private long mPreviousT;
+    private boolean mSingle = false;
+    private boolean mDouble = false;
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
-        // MotionEvent reports input details from the touch screen
-        // and other input controls. In this case, you are only
-        // interested in events where the touch position changed.
 
-        float x = e.getX();
-        float y = e.getY();
 
-        switch (e.getAction()) {
-            case MotionEvent.ACTION_MOVE:
+                int pointerCount = e.getPointerCount();
 
-                float dx = x - mPreviousX;
-                float dy = y - mPreviousY;
+        float x0 = e.getX();
+        float y0 = e.getY();
+        float x1 = 0;
+        float y1 = 0;
+
+        if (pointerCount == 2) {
+            x1 = e.getX(1);
+            y1 = e.getY(1);
+        }
+
+        int action = e.getActionMasked();
+
+        if (pointerCount == 1) {
+
+            if (mSingle && action == MotionEvent.ACTION_MOVE) {
+
+                float dx = x0 - mPreviousX;
+                float dy = y0 - mPreviousY;
 
                 if (Math.abs(dx) > Math.abs(dy)) {
                     mRenderer.setAngleH(
                             mRenderer.getAngleH() -
-                                    dx * TOUCH_SCALE_FACTOR);  // = 180.0f / 320
+                                    dx * TOUCH_SCALE_FACTOR / mDensity / mRenderer.getZoom());  // = 180.0f / 320
 
                 } else {
-                    float a = mRenderer.getAngleV() + dy * TOUCH_SCALE_FACTOR;
+                    float a = mRenderer.getAngleV() + dy * TOUCH_SCALE_FACTOR / mDensity / mRenderer.getZoom();
                     if (a > 89.9f) {
                         a = 89.9f;
                     } else if (a < -30) {
@@ -69,9 +85,8 @@ public class MyGLSurfaceView extends GLSurfaceView {
                 }
 
                 requestRender();
-                break;
 
-            case MotionEvent.ACTION_DOWN:
+            } else if (action == MotionEvent.ACTION_DOWN) {
                 // reset na dubbel tap
                 long t = System.currentTimeMillis();
                 if (t - mPreviousT < 200) {
@@ -79,10 +94,62 @@ public class MyGLSurfaceView extends GLSurfaceView {
                     requestRender();
                 }
                 mPreviousT = t;
-                break;
+            }
+            mPreviousX = x0;
+            mPreviousY = y0;
+
+            mSingle = true;
+            mDouble = false;
+
+        } else if (pointerCount == 2) {
+
+            float dx = x0 - x1;
+            float dy = y0 - y1;
+            float dist = (float) Math.sqrt(dx * dx + dy * dy);
+
+            float x = (x0 + x1) / 2;
+            float y = (y0 + y1) / 2;
+
+            if (action == MotionEvent.ACTION_MOVE && mDouble) {
+                float d = dist - mPreviousD;
+                float zoom = mRenderer.getZoom();
+                float zm = zoom + d / 150 / mDensity;
+                if (zm < 1) {
+                    zm = 1;
+                } else if (zm > 5) {
+                    zm = 5;
+                }
+                mRenderer.setZoom(zm);
+
+                float xo = mRenderer.getXO() + (x - mPreviousX) * TOUCH_SCALE_FACTOR / 90 / mDensity / zoom;
+                float yo = mRenderer.getYO() + (y - mPreviousY) * TOUCH_SCALE_FACTOR / 90 / mDensity / zoom;
+                if (xo < -1)
+                    xo = -1;
+                if (xo > 1)
+                    xo = 1;
+                if (yo < -1)
+                    yo = -1;
+                if (yo > 1)
+                    yo = 1;
+                mRenderer.setXO(xo);
+                mRenderer.setYO(yo);
+
+                requestRender();
+            }
+
+            mPreviousD = dist;
+            mPreviousX = x;
+            mPreviousY = y;
+
+            mSingle = false;
+            mDouble = true;
+
+        } else {
+            mSingle = false;
+            mDouble = false;
+
         }
-        mPreviousX = x;
-        mPreviousY = y;
+
         return true;
     }
 
