@@ -1,5 +1,6 @@
 package nl.xs4all.pebbe.fracland;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -73,6 +74,12 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_help) {
             HelpDialogFragment dialog = new HelpDialogFragment();
             dialog.show(getSupportFragmentManager(), "HelpDiaFrag");
+            return true;
+        }
+
+        if (id == R.id.action_cardboard) {
+            Intent i = new Intent(this, CardboardActivity.class);
+            startActivity(i);
             return true;
         }
 

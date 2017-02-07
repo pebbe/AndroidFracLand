@@ -18,7 +18,13 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+                <category android:name="com.google.intent.category.CARDBOARD" />
+           </intent-filter>
+        </activity>
+        <activity
+            android:name=".CardboardActivity"
+            android:screenOrientation="landscape"
+            android:configChanges="orientation|keyboardHidden">
         </activity>
     </application>
 

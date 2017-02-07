@@ -1,5 +1,6 @@
 package nl.xs4all.pebbe.fracland;
 
+import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
@@ -98,6 +99,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         outState.putLong(seedState, mSeed);
     }
 
+
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig eglConfig) {
         // Set the background frame color
@@ -111,7 +113,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         GLES20.glDepthFunc(GLES20.GL_LEQUAL);
 
-        fracland = new FracLand();
+        fracland = new FracLand(false);
         fracland.init(mSeed);
     }
 
@@ -137,6 +139,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         // Calculate the projection and view transformation
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
 
+        // nodig als objecten niet convex zijn
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+        GLES20.glDepthFunc(GLES20.GL_LEQUAL);
         fracland.draw(mMVPMatrix);
     }
 

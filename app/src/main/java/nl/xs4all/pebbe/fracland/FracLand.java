@@ -19,7 +19,7 @@ public class FracLand {
     private static final float lenXYZ = 10.954451f; // sqrt(X^2 + Y^2 + Z^2)
 
     private static final float SUB = -.2f;
-    private static final float DOWN = .4f;
+    private float DOWN = .8f; // TODO: .4f for non-cardboard
 
     private static final float GreyR = .37647f;
     private static final float GreyG = .490196f;
@@ -241,60 +241,65 @@ public class FracLand {
         colorBuffer.position(0);
     }
 
-    public FracLand() {
-        int vertexShader = MyGLRenderer.loadShader(
+    public FracLand(boolean cardboard) {
+        if (cardboard) {
+            DOWN = .8f;
+        } else {
+            DOWN = .4f;
+        }
+        int vertexShader = Util.loadShader(
                 GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-        int fragmentShader = MyGLRenderer.loadShader(
+        int fragmentShader = Util.loadShader(
                 GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
 
         mProgram = GLES20.glCreateProgram();             // create empty OpenGL Program
         GLES20.glAttachShader(mProgram, vertexShader);   // add the vertex shader to program
-        MyGLRenderer.checkGlError("glAttachShader vertexShader");
+        Util.checkGlError("glAttachShader vertexShader");
         GLES20.glAttachShader(mProgram, fragmentShader); // add the fragment shader to program
-        MyGLRenderer.checkGlError("glAttachShader fragmentShader");
+        Util.checkGlError("glAttachShader fragmentShader");
         GLES20.glLinkProgram(mProgram);                  // create OpenGL program executables
-        MyGLRenderer.checkGlError("glLinkProgram");
+        Util.checkGlError("glLinkProgram");
     }
 
     public void draw(float[] mvpMatrix) {
         // Add program to OpenGL environment
         GLES20.glUseProgram(mProgram);
-        MyGLRenderer.checkGlError("glUseProgram");
+        Util.checkGlError("glUseProgram");
 
         mPositionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition");
-        MyGLRenderer.checkGlError("glGetAttribLocation vPosition");
+        Util.checkGlError("glGetAttribLocation vPosition");
         GLES20.glEnableVertexAttribArray(mPositionHandle);
-        MyGLRenderer.checkGlError("glEnableVertexAttribArray vPosition");
+        Util.checkGlError("glEnableVertexAttribArray vPosition");
         GLES20.glVertexAttribPointer(
                 mPositionHandle, COORDS_PER_VERTEX,
                 GLES20.GL_FLOAT, false,
                 vertexStride, vertexBuffer);
-        MyGLRenderer.checkGlError("glVertexAttribPointer vPosition");
+        Util.checkGlError("glVertexAttribPointer vPosition");
 
         mColorHandle = GLES20.glGetAttribLocation(mProgram, "vertexColor");
-        MyGLRenderer.checkGlError("glGetAttribLocation vertexColor");
+        Util.checkGlError("glGetAttribLocation vertexColor");
         GLES20.glEnableVertexAttribArray(mColorHandle);
-        MyGLRenderer.checkGlError("glEnableVertexAttribArray vertexColor");
+        Util.checkGlError("glEnableVertexAttribArray vertexColor");
         GLES20.glVertexAttribPointer(
                 mColorHandle, COLORS_PER_VERTEX,
                 GLES20.GL_FLOAT, false,
                 colorStride, colorBuffer);
-        MyGLRenderer.checkGlError("glVertexAttribPointer vertexColor");
-
+        Util.checkGlError("glVertexAttribPointer vertexColor");
 
         mMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
-        MyGLRenderer.checkGlError("glGetUniformLocation uMVPMatrix");
+        Util.checkGlError("glGetUniformLocation uMVPMatrix");
         GLES20.glUniformMatrix4fv(mMatrixHandle, 1, false, mvpMatrix, 0);
-        MyGLRenderer.checkGlError("glUniformMatrix4fv uMVPMatrix");
+        Util.checkGlError("glUniformMatrix4fv uMVPMatrix");
 
         // Draw
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount);
-        MyGLRenderer.checkGlError("glDrawArrays");
+        Util.checkGlError("glDrawArrays");
 
         // Disable vertex arrays
         GLES20.glDisableVertexAttribArray(mColorHandle);
-        MyGLRenderer.checkGlError("glDisableVertexAttribArray mColorHandle");
+        Util.checkGlError("glDisableVertexAttribArray mColorHandle");
         GLES20.glDisableVertexAttribArray(mPositionHandle);
-        MyGLRenderer.checkGlError("glDisableVertexAttribArray mPositionHandle");
+        Util.checkGlError("glDisableVertexAttribArray mPositionHandle");
     }
+
 }

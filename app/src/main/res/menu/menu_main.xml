@@ -2,6 +2,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="nl.xs4all.pebbe.fracland.MainActivity">
+     <item
+        android:id="@+id/action_cardboard"
+        android:icon="@drawable/ic_cardboard"
+        android:title="@string/action_cardboard"
+        app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/action_help"
         android:orderInCategory="100"
